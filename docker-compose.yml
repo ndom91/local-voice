@@ -8,14 +8,14 @@ services:
     ports:
       - "10300:10300"
     volumes:
-      - "${WHISPER_DATA_DIR:-./whisper-cpp/local}:/opt/local-voice/whisper-cpp/local"
+      - ./whisper-cpp/local:/data
     command:
       - "--uri"
       - "tcp://0.0.0.0:10300"
       - "--data-dir"
-      - "./whisper-cpp/local"
+      - "/data"
       - "--model"
-      - "tiny.en-q5_1"
+      - "large-v3-q5_0"
       - "--debug"
     healthcheck:
       test:
@@ -28,17 +28,14 @@ services:
       retries: 5
       start_period: 20s
     restart: unless-stopped
-    networks:
-      - voice
 
   piper:
     image: rhasspy/wyoming-piper:latest
     container_name: wyoming-piper
-    user: 1001:1001
     ports:
       - "10200:10200"
     volumes:
-      - "${PIPER_DATA_DIR:-./piper/local}:/data"
+      - ./piper/local:/data
     command:
       - "--voice"
       - "en_US-lessac-medium"
@@ -53,20 +50,3 @@ services:
       retries: 5
       start_period: 20s
     restart: unless-stopped
-    networks:
-      - voice
-
-  microwakeword: 
-    image: rhasspy/wyoming-microwakeword:latest
-    container_name: wyoming-microwakeword
-    user: 1001:1001
-    ports:
-      - "10400:10400"
-    restart: unless-stopped
-    networks:
-      - voice
-
-networks:
-  voice:
-    driver: bridge
-
